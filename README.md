@@ -9,22 +9,24 @@
    ░ ░░  ░▒ ░     ░░▒░ ░ ░   ░▒ ░ ▒░  ░   ░  ░ ░  ░
      ░░  ░░        ░░░ ░ ░   ░░   ░ ░ ░   ░    ░   
       ░              ░        ░           ░    ░  ░
-     ░            
+     ░           
+
 ```
-# vpurge
+# vpurge 
+v1.0.0
 
 **Tired of having to reboot just because Windows can't properly clean up VRAM before opening game or a local LLM?**
 
-vpurge is a simple script that cycles your GPU off and back on, wiping VRAM clean like a power wash on a greasy driveway. It's the equivalent of chopping an olive with an axe — it works, but anything running on your GPU at the time is getting bisected. Save your work first.
+vpurge is a simple script that cycles your GPU off and back on, wiping VRAM clean like a power wash on a greasy driveway. It's the equivalent of chopping an olive with an axe, it works, but anything running on your GPU at the time is getting bisected. Save your work first.
 
-No reinstalls. No driver resets. No "have you tried turning it off and on again?" — well, actually, yes. That's exactly what it does. But *only* the GPU.
+No reinstalls. No driver resets. No "have you tried turning it off and on again?" Well, actually, yes. That's exactly what it does. But *only* the GPU.
 
 ---
 
 ## How it works
 
 ```
-1. Detects your primary display adapter (NVIDIA, AMD, Intel — doesn't matter)
+1. Detects your primary display adapter (NVIDIA, AMD, Intel, doesn't matter)
 2. Saves your current display configuration (resolution, multi-monitor layout, refresh rate)
 3. Measures VRAM usage before the purge
 4. Spawns a watchdog process (independent of the main terminal)
@@ -32,7 +34,7 @@ No reinstalls. No driver resets. No "have you tried turning it off and on again?
 6. GPU goes dark. All displays connected to it go black.
 7. Watchdog re-enables the GPU using pnputil (native, reliable) with up to 5 retries
 8. Display configuration is restored to exactly how it was
-9. VRAM usage is measured again — you see how much was freed
+9. VRAM usage is measured again and you see how much was freed
 ```
 
 The **watchdog** is the key safety mechanism. It runs as a completely separate PowerShell process spawned *before* the GPU is disabled. If the main script dies when the screen goes black, the watchdog keeps running and brings the GPU back. It uses `pnputil.exe` (a native Windows binary) as its primary method, with `Enable-PnpDevice` as fallback.
@@ -68,7 +70,7 @@ When you run vpurge:
 
 ```
   ╔════════════════════════════════════════════════════╗
-  ║  VRAM PURGE COMPLETE                               ║
+  ║  VRAM PURGE COMPLETE                                                     ║
   ╠════════════════════════════════════════════════════╣
   ║  NVIDIA GeForce RTX 4090
   ║  VRAM before:    6,144 MB
@@ -110,4 +112,4 @@ rd /s /q "%ProgramData%\Microsoft\Windows\Start Menu\Programs\vpurge"
 
 ## License
 
-Do whatever you want with it. If it breaks something, you were warned.
+MIT but do whatever you want with it. If it breaks something, you were warned.
