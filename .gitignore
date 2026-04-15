@@ -1,0 +1,21 @@
+# OS
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Temp files generated at runtime
+vpurge-watchdog.ps1
+vpurge-watchdog.log
+vpurge-displayconfig.cs
+vpurge-displayconfig.bin
+vpurge-restore.ps1
+vpurge-launcher.ps1
+vpurge_makeicon.ps1
+vpurge_shortcut.vbs
+vpurge_path_*.ps1
