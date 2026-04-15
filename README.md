@@ -70,7 +70,7 @@ When you run vpurge:
   ╔════════════════════════════════════════════════════╗
   ║  VRAM PURGE COMPLETE                               ║
   ╠════════════════════════════════════════════════════╣
-  ║  AMD Radeon RX 7900 XT
+  ║  NVIDIA GeForce RTX 4090
   ║  VRAM before:    6,144 MB
   ║  VRAM after:       128 MB
   ║  Freed:          6,016 MB
