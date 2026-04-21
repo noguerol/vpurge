@@ -178,7 +178,7 @@ function Find-PrimaryDisplayAdapter {
         $realGPUs = @($allControllers | Where-Object {
             $_.Name -notmatch 'Microsoft Basic Display Adapter'
         })
-        $wmiControllers = if ($realGPUs.Count -gt 0) { $realGPUs } else { $allControllers }
+        $wmiControllers = @(if ($realGPUs.Count -gt 0) { $realGPUs } else { $allControllers })
     }
 
     # --- Step 2: Filter to those actually outputting to a display ---
@@ -765,7 +765,19 @@ for (`$i = 1; `$i -le `$retries; `$i++) {
     if (`$dev -and `$dev.Status -eq 'OK') {
         Log('VERIFY OK -- adapter re-enabled successfully')
 
-        # Restore display configuration
+        # Restart DWM first to reclaim hardware-accelerated composition
+        # Must happen BEFORE config restore, otherwise DWM restart overwrites the restored config
+        Log('Restarting DWM for hardware acceleration...')
+        try {
+            Stop-Process -Name dwm -Force -ErrorAction Stop
+            Start-Sleep -Seconds 3
+            Log('DWM restarted successfully')
+        }
+        catch {
+            Log('DWM restart failed: {0}' -f `$_.Exception.Message)
+        }
+
+        # Restore display configuration AFTER DWM restart so it isn't overwritten
         if (`$configSaved -and (Test-Path `$configFile)) {
             Log('Restoring display configuration...')
             try {
@@ -840,8 +852,10 @@ while ($elapsed -lt $totalWait) {
 
     $verify = Get-PnpDevice -InstanceId $instanceId -ErrorAction SilentlyContinue
     if ($verify -and $verify.Status -eq 'OK') {
-        # Belt & suspenders: try restore (watchdog likely already did it).
-        # Silently ignore errors since this is a best-effort retry.
+        # --- Restore display config AFTER DWM restart (belt & suspenders) ---
+        # Watchdog already restarted DWM and restored config.
+        # We do NOT restart DWM here because killing dwm.exe from this
+        # terminal process kills our own session, preventing the summary output.
         if ($configSaved) {
             try {
                 $bytes = [System.IO.File]::ReadAllBytes($configFile)
@@ -885,5 +899,7 @@ Write-Icon "!" "Adapter not back yet. The watchdog may still be retrying." Yello
 Write-Icon "📄" "Check log: $logFile" Yellow
 Write-Icon "📄" "Config backup: $configFile" Yellow
 if ($configSaved) {
-    Write-Host ""
+    Write-Host "  Manual restore: powershell -File `"$env:TEMP\vpurge-restore.ps1`"" -ForegroundColor DarkGray
+}
+Write-Host ""
 exit 1
